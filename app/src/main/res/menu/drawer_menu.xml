@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/notesNavItem"
+            android:icon="@drawable/note"
+            android:title="Notes"
+            />
+
+        <item
+            android:id="@+id/todosNavItem"
+            android:icon="@drawable/todo"
+            android:title="Todos"
+            />
+
+    </group>
+
+    <item
+        android:title="Others">
+        <menu>
+            <item
+                android:id="@+id/aboutMeNavItem"
+                android:icon="@drawable/about"
+                android:title="About"
+                />
+            <item
+                android:id="@+id/versionNavItem"
+                android:icon="@drawable/star"
+                android:title="Version: Andropad v1.0.1 beta"
+                />
+        </menu>
+
+    </item>
+
+</menu>

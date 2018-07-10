@@ -1,5 +1,6 @@
 package android.notepad.app.dmcx.notepadandroid.Fragments.Main;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.Movie;
@@ -134,7 +135,7 @@ public class TodosFragment extends Fragment {
         todosRV.smoothScrollToPosition(allTheTodos.size());
     }
 
-    private ItemTouchHelper.Callback itemTouchCallback(){
+    private ItemTouchHelper.Callback itemTouchCallback() {
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
                 0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT
@@ -146,6 +147,7 @@ public class TodosFragment extends Fragment {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
                 final int position = viewHolder.getAdapterPosition();
                 final TodoModel theData = allTheTodos.get(position);
 
@@ -245,6 +247,7 @@ public class TodosFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance);
+                @SuppressLint("InflateParams")
                 View dialogView = LayoutInflater.from(MainActivity.instance).inflate(R.layout.dialog_create_todo, null);
                 builder.setView(dialogView);
                 final AlertDialog alertDialog = builder.create();

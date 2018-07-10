@@ -39,7 +39,6 @@ public class NotesRecylerViewAdapter extends RecyclerView.Adapter<NotesRecylerVi
 
     @Override
     public void onBindViewHolder(NotesRecyclerViewHolder holder, int position) {
-
         holder.noteTitleTV.setText(notes.get(position).getTitle());
         holder.noteContentTV.setText(notes.get(position).getContent());
 
@@ -47,6 +46,7 @@ public class NotesRecylerViewAdapter extends RecyclerView.Adapter<NotesRecylerVi
         final String title = notes.get(position).getTitle();
         final String content = notes.get(position).getContent();
         final String time = notes.get(position).getTime();
+        final String itemPosition = String.valueOf(holder.getAdapterPosition());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +66,7 @@ public class NotesRecylerViewAdapter extends RecyclerView.Adapter<NotesRecylerVi
                 intent.putExtra(Vars.Process, Vars.ProcessType.NoteMultipleDelete);
                 intent.putExtra(Vars.Title, "Delete Notes");
                 intent.putExtra(Vars.Id, id);
+                intent.putExtra(Vars.Position, itemPosition);
                 MainActivity.instance.startActivity(intent);
                 return false;
             }
@@ -78,6 +79,7 @@ public class NotesRecylerViewAdapter extends RecyclerView.Adapter<NotesRecylerVi
                 FirebaseUser user = mAuth.getCurrentUser();
                 FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
+                assert user != null;
                 mFirestore.collection("users").document(user.getUid()).collection("notes").document(id).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {

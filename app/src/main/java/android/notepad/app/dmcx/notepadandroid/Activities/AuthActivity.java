@@ -1,5 +1,6 @@
 package android.notepad.app.dmcx.notepadandroid.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Auth.SignInFragment;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Auth.SignUpFragment;
@@ -13,7 +14,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class AuthActivity extends AppCompatActivity {
 
-    public static AppCompatActivity instance;
+    @SuppressLint("StaticFieldLeak")
+    public static AuthActivity instance;
 
     private FirebaseAuth mAuth;
 

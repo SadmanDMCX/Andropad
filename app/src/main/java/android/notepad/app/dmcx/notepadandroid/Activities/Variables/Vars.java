@@ -7,6 +7,7 @@ public class Vars {
     public static final String Title = "TITLE";
     public static final String Content = "CONTENT";
     public static final String Id = "ID";
+    public static final String Position = "POSITION";
 
     public static class ProcessType {
 

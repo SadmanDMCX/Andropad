@@ -1,6 +1,7 @@
 package android.notepad.app.dmcx.notepadandroid.Fragments.Auth;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.notepad.app.dmcx.notepadandroid.Activities.AuthActivity;
 import android.notepad.app.dmcx.notepadandroid.Activities.MainActivity;
@@ -26,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import dmax.dialog.SpotsDialog;
 
@@ -40,7 +42,7 @@ public class SignUpFragment extends Fragment {
     private Button signInBTN;
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore mFirestore ;
+    private FirebaseFirestore mFirestore;
 
     @Nullable
     @Override
@@ -97,14 +99,14 @@ public class SignUpFragment extends Fragment {
                                                 AuthActivity.instance.startActivity(intent);
                                                 AuthActivity.instance.finish();
                                             } else {
-                                                Toast.makeText(AuthActivity.instance, "Some issue found. " + task.getException().getMessage().toString(), Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(AuthActivity.instance, "Some issue found. " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
                                 }
 
                             } else {
-                                Toast.makeText(AuthActivity.instance, "Authentication failed. " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AuthActivity.instance, "Authentication failed. " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }
                     });

@@ -2,4 +2,7 @@
     <string name="app_name">Andropad</string>
     <string name="open_drawer">Open Navigation Drawer</string>
     <string name="close_drawer">Close Navigation Drawer</string>
+    <string name="go_for_a_walk">Go for a walk</string>
+    <string name="calender_image">Calender Image</string>
+    <string name="task_time">Task time</string>
 </resources>

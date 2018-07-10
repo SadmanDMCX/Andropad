@@ -44,6 +44,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.PropertyResourceBundle;
 import java.util.concurrent.ExecutionException;
 
@@ -103,10 +104,12 @@ public class MultipleNoteDeleteFragment extends Fragment {
     }
 
     private void loadRecyclerView() {
+
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         noteGridRV.setLayoutManager(staggeredGridLayoutManager);
 
-        String selectedId = getArguments().get(Vars.Id).toString();
+        String selectedId = Objects.requireNonNull(getArguments().get(Vars.Id)).toString();
+//        String position = Objects.requireNonNull(getArguments().get(Vars.Position)).toString();
         mulptipleNoteDeleteRecyclerViewAdapter = new MulptipleNoteDeleteRecyclerViewAdapter(loadData(), selectedId);
         noteGridRV.setAdapter(mulptipleNoteDeleteRecyclerViewAdapter);
     }
@@ -115,9 +118,11 @@ public class MultipleNoteDeleteFragment extends Fragment {
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         noteGridRV.setLayoutManager(staggeredGridLayoutManager);
 
-        String selectedId = getArguments().get(Vars.Id).toString();
+        String selectedId = Objects.requireNonNull(getArguments().get(Vars.Id)).toString();
+        String position = Objects.requireNonNull(getArguments().get(Vars.Position)).toString();
         mulptipleNoteDeleteRecyclerViewAdapter = new MulptipleNoteDeleteRecyclerViewAdapter(notes, selectedId);
         noteGridRV.setAdapter(mulptipleNoteDeleteRecyclerViewAdapter);
+        noteGridRV.scrollToPosition(Integer.valueOf(position));
     }
 
     @Nullable

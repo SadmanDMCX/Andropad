@@ -1,5 +1,6 @@
 package android.notepad.app.dmcx.notepadandroid.Activities;
 
+import android.annotation.SuppressLint;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Main.Notes.NoteModel;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Process.MultipleNoteDeleteFragment;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Process.NoteCreateFragment;
@@ -11,12 +12,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import java.util.Objects;
 
 public class ProcessActivity extends AppCompatActivity {
 
+    @SuppressLint("StaticFieldLeak")
     public static AppCompatActivity instance;
 
     private Toolbar toolbar;
@@ -39,7 +42,7 @@ public class ProcessActivity extends AppCompatActivity {
 
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         process = Objects.requireNonNull(getIntent().getExtras()).getString(Vars.Process);
 
@@ -82,16 +85,18 @@ public class ProcessActivity extends AppCompatActivity {
                 toolbar.setTitle(title);
 
                 String id = getIntent().getExtras().getString(Vars.Id);
+                String position = getIntent().getExtras().getString(Vars.Position);
 
                 Bundle bundle = new Bundle();
                 bundle.putString(Vars.Id, id);
+                bundle.putString(Vars.Position, position);
 
                 multipleNoteDeleteFragment = new MultipleNoteDeleteFragment();
                 multipleNoteDeleteFragment.setArguments(bundle);
 
                 getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                    .replace(R.id.fragment_container, multipleNoteDeleteFragment, multipleNoteDeleteFragment.TAG).commit();
+                    .replace(R.id.fragment_container, multipleNoteDeleteFragment, MultipleNoteDeleteFragment.TAG).commit();
                 break;
             }
             case Vars.ProcessType.UserProfile: {
@@ -102,7 +107,7 @@ public class ProcessActivity extends AppCompatActivity {
 
                 getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-                    .replace(R.id.fragment_container, userProfileFragment, userProfileFragment.TAG).commit();
+                    .replace(R.id.fragment_container, userProfileFragment, UserProfileFragment.TAG).commit();
                 break;
             }
         }

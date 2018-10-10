@@ -140,40 +140,44 @@ public class NotesFragment extends Fragment {
         createNewNoteBTN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance);
-                View dialogView = LayoutInflater.from(MainActivity.instance).inflate(R.layout.dialog_create_note, null);
-                builder.setView(dialogView);
-                final AlertDialog dialog = builder.create();
-                dialog.show();
+                if (Vars.IsOnline) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance);
+                    View dialogView = LayoutInflater.from(MainActivity.instance).inflate(R.layout.dialog_create_note, null);
+                    builder.setView(dialogView);
+                    final AlertDialog dialog = builder.create();
+                    dialog.show();
 
-                final EditText noteTitleET = dialogView.findViewById(R.id.noteTitleET);
-                Button cancelBTN = dialogView.findViewById(R.id.cancelBTN);
-                Button confirmBTN = dialogView.findViewById(R.id.confirmBTN);
+                    final EditText noteTitleET = dialogView.findViewById(R.id.noteTitleET);
+                    Button cancelBTN = dialogView.findViewById(R.id.cancelBTN);
+                    Button confirmBTN = dialogView.findViewById(R.id.confirmBTN);
 
-                cancelBTN.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-
-                confirmBTN.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-
-                        String title = noteTitleET.getText().toString();
-                        if (title.equals("")) {
-                            Toast.makeText(MainActivity.instance, "Need a title of the note.", Toast.LENGTH_SHORT).show();
-                            return;
+                    cancelBTN.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
                         }
+                    });
 
-                        Intent intent = new Intent(MainActivity.instance, ProcessActivity.class);
-                        intent.putExtra(Vars.Process, Vars.ProcessType.NoteCreate);
-                        intent.putExtra(Vars.Title, title);
-                        MainActivity.instance.startActivity(intent);
-                    }
-                });
+                    confirmBTN.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+
+                            String title = noteTitleET.getText().toString();
+                            if (title.equals("")) {
+                                Toast.makeText(MainActivity.instance, "Need a title of the note.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            Intent intent = new Intent(MainActivity.instance, ProcessActivity.class);
+                            intent.putExtra(Vars.Process, Vars.ProcessType.NoteCreate);
+                            intent.putExtra(Vars.Title, title);
+                            MainActivity.instance.startActivity(intent);
+                        }
+                    });
+                } else {
+                    Toast.makeText(MainActivity.instance, "Please connect to internet.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -185,32 +189,36 @@ public class NotesFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String search = charSequence.toString();
-                if (!search.equals("")) {
-                    mFirestore.collection("users").document(mUser.getUid()).collection("notes").orderBy("title").startAt(search).endAt(search+"\uf8ff").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
-                            List<NoteModel> notes = new ArrayList<>();
+                if (Vars.IsOnline) {
+                    String search = charSequence.toString();
+                    if (!search.equals("")) {
+                        mFirestore.collection("users").document(mUser.getUid()).collection("notes").orderBy("title").startAt(search).endAt(search+"\uf8ff").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
+                                List<NoteModel> notes = new ArrayList<>();
 
-                            for (DocumentSnapshot snapshot : snapshots) {
-                                notes.add(new NoteModel(snapshot.getId(), snapshot.get("title").toString(), snapshot.get("content").toString(), snapshot.get("time").toString()));
+                                for (DocumentSnapshot snapshot : snapshots) {
+                                    notes.add(new NoteModel(snapshot.getId(), snapshot.get("title").toString(), snapshot.get("content").toString(), snapshot.get("time").toString()));
+                                }
+
+                                loadRecyclerView(notes);
                             }
+                        });
 
-                            loadRecyclerView(notes);
-                        }
-                    });
-
-                    return;
-                }
-
-                Toast.makeText(MainActivity.instance, "Reloading. Please wait.", Toast.LENGTH_SHORT).show();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadRecyclerView();
+                        return;
                     }
-                }, 500);
+
+                    Toast.makeText(MainActivity.instance, "Reloading. Please wait.", Toast.LENGTH_SHORT).show();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadRecyclerView();
+                        }
+                    }, 500);
+                } else {
+                    Toast.makeText(MainActivity.instance, "Please connect to internet.", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.notepad.app.dmcx.notepadandroid.Activities.AuthActivity;
 import android.notepad.app.dmcx.notepadandroid.Activities.MainActivity;
+import android.notepad.app.dmcx.notepadandroid.Activities.Variables.Vars;
 import android.notepad.app.dmcx.notepadandroid.R;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -61,55 +62,59 @@ public class SignUpFragment extends Fragment {
         signUpBTN.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String name = nameET.getText().toString();
-                final String email = emailET.getText().toString();
-                final String password = passwordET.getText().toString();
+                if (Vars.IsOnline) {
+                    final String name = nameET.getText().toString();
+                    final String email = emailET.getText().toString();
+                    final String password = passwordET.getText().toString();
 
-                if (name.equals("") || email.equals("") || password.equals("")) {
-                    Toast.makeText(AuthActivity.instance, "Fill all the fields.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                    if (name.equals("") || email.equals("") || password.equals("")) {
+                        Toast.makeText(AuthActivity.instance, "Fill all the fields.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                if (password.length() < 6) {
-                    Toast.makeText(AuthActivity.instance, "Password must be 6 characters.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                    if (password.length() < 6) {
+                        Toast.makeText(AuthActivity.instance, "Password must be 6 characters.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                final AlertDialog spotDialog = new SpotsDialog(AuthActivity.instance, "Please wait...");
-                spotDialog.show();
+                    final AlertDialog spotDialog = new SpotsDialog(AuthActivity.instance, "Please wait...");
+                    spotDialog.show();
 
-                mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(AuthActivity.instance, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                spotDialog.dismiss();
+                    mAuth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(AuthActivity.instance, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        spotDialog.dismiss();
 
-                                FirebaseUser user = mAuth.getCurrentUser();
+                                        FirebaseUser user = mAuth.getCurrentUser();
 
-                                if (user != null) {
-                                    Map<String, String> userMap = new HashMap<>();
-                                    userMap.put("name", name);
+                                        if (user != null) {
+                                            Map<String, String> userMap = new HashMap<>();
+                                            userMap.put("name", name);
 
-                                    mFirestore.collection("users").document(user.getUid()).collection("profile").add(userMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentReference> task) {
-                                            if (task.isSuccessful()) {
-                                                Intent intent = new Intent(AuthActivity.instance, MainActivity.class);
-                                                AuthActivity.instance.startActivity(intent);
-                                                AuthActivity.instance.finish();
-                                            } else {
-                                                Toast.makeText(AuthActivity.instance, "Some issue found. " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
-                                            }
+                                            mFirestore.collection("users").document(user.getUid()).collection("profile").add(userMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Intent intent = new Intent(AuthActivity.instance, MainActivity.class);
+                                                        AuthActivity.instance.startActivity(intent);
+                                                        AuthActivity.instance.finish();
+                                                    } else {
+                                                        Toast.makeText(AuthActivity.instance, "Some issue found. " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
                                         }
-                                    });
-                                }
 
-                            } else {
-                                Toast.makeText(AuthActivity.instance, "Authentication failed. " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+                                    } else {
+                                        Toast.makeText(AuthActivity.instance, "Authentication failed. " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                } else {
+                    Toast.makeText(MainActivity.instance, "Please connect to internet.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

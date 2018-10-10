@@ -246,6 +246,11 @@ public class TodosFragment extends Fragment {
         addNewFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!Vars.IsOnline) {
+                    Toast.makeText(MainActivity.instance, "Internet connection needed.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.instance);
                 @SuppressLint("InflateParams")
                 View dialogView = LayoutInflater.from(MainActivity.instance).inflate(R.layout.dialog_create_todo, null);

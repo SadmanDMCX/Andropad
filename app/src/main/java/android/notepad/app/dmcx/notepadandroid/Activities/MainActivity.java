@@ -1,26 +1,34 @@
 package android.notepad.app.dmcx.notepadandroid.Activities;
 
-import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.notepad.app.dmcx.notepadandroid.Activities.Variables.Vars;
+import android.notepad.app.dmcx.notepadandroid.BroadcastReciver.NetworkBroadcastReciver;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Main.AboutFragment;
+import android.notepad.app.dmcx.notepadandroid.Fragments.Main.ConverterFragment;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Main.NotesFragment;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Main.TodosFragment;
+import android.notepad.app.dmcx.notepadandroid.Fragments.Process.UserProfileFragment;
 import android.notepad.app.dmcx.notepadandroid.R;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -28,6 +36,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Currency;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,8 +57,33 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
 
+    private NetworkBroadcastReciver networkBroadcastReciver;
+
     public static void reload() {
         instance.loadUserDetail();
+    }
+
+    private void init() {
+        toolbar = findViewById(R.id.toolbar);
+        navigationView = findViewById(R.id.navigationView);
+        drawerLayout = findViewById(R.id.drawerLayout);
+
+        mAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
+
+        networkBroadcastReciver = new NetworkBroadcastReciver();
+    }
+
+    private void initToolbar() {
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        View navHeaderView = navigationView.getHeaderView(0);
+        nameUserNavbarProfileTV = navHeaderView.findViewById(R.id.nameUserNavbarProfileTV);
+        emailUserNavbarProfileTV = navHeaderView.findViewById(R.id.emailUserNavbarProfileTV);
     }
 
     private void loadUserDetail() {
@@ -58,6 +97,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void loadNotesFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                .replace(R.id.fragment_container, new NotesFragment(), NotesFragment.TAG).commit();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,22 +111,8 @@ public class MainActivity extends AppCompatActivity {
 
         instance = this;
 
-        toolbar = findViewById(R.id.toolbar);
-        navigationView = findViewById(R.id.navigationView);
-        drawerLayout = findViewById(R.id.drawerLayout);
-
-        mAuth = FirebaseAuth.getInstance();
-        mFirestore = FirebaseFirestore.getInstance();
-
-        toolbar.setTitleTextColor(Color.WHITE);
-        setSupportActionBar(toolbar);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        View navHeaderView = navigationView.getHeaderView(0);
-        nameUserNavbarProfileTV = navHeaderView.findViewById(R.id.nameUserNavbarProfileTV);
-        emailUserNavbarProfileTV = navHeaderView.findViewById(R.id.emailUserNavbarProfileTV);
+        init();
+        initToolbar();
 
         loadUserDetail();
 
@@ -106,6 +138,12 @@ public class MainActivity extends AppCompatActivity {
                                     .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
                                     .replace(R.id.fragment_container, new TodosFragment(), TodosFragment.TAG).commit();
                                 break;
+                            case R.id.converterNavItem:
+                                getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
+                                    .replace(R.id.fragment_container, new ConverterFragment(), ConverterFragment.TAG).commit();
+                                break;
                             case R.id.aboutMeNavItem:
                                 getSupportFragmentManager()
                                     .beginTransaction()
@@ -120,10 +158,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getSupportFragmentManager()
-            .beginTransaction()
-            .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out)
-            .replace(R.id.fragment_container, new NotesFragment(), NotesFragment.TAG).commit();
+        loadNotesFragment();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        registerReceiver(networkBroadcastReciver, intentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        unregisterReceiver(networkBroadcastReciver);
     }
 
     @Override
@@ -157,6 +209,21 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        Fragment about = instance.getSupportFragmentManager().findFragmentByTag(AboutFragment.TAG);
+        Fragment todo = instance.getSupportFragmentManager().findFragmentByTag(TodosFragment.TAG);
+        Fragment converter = instance.getSupportFragmentManager().findFragmentByTag(ConverterFragment.TAG);
+
+        if (about != null && about.isVisible()) {
+            loadNotesFragment();
+            return;
+        } else if (todo != null && todo.isVisible()) {
+            loadNotesFragment();
+            return;
+        } else if (converter != null && converter.isVisible()) {
+            loadNotesFragment();
+            return;
+        }
+
         super.onBackPressed();
         finish();
     }

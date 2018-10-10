@@ -2,6 +2,9 @@ package android.notepad.app.dmcx.notepadandroid.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.notepad.app.dmcx.notepadandroid.BroadcastReciver.NetworkBroadcastReciver;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Auth.SignInFragment;
 import android.notepad.app.dmcx.notepadandroid.Fragments.Auth.SignUpFragment;
 import android.notepad.app.dmcx.notepadandroid.R;
@@ -19,6 +22,8 @@ public class AuthActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
+    private NetworkBroadcastReciver networkBroadcastReciver;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +32,8 @@ public class AuthActivity extends AppCompatActivity {
         instance = this;
 
         mAuth = FirebaseAuth.getInstance();
+
+        networkBroadcastReciver = new NetworkBroadcastReciver();
 
         getSupportFragmentManager()
             .beginTransaction()
@@ -39,12 +46,24 @@ public class AuthActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
 
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        registerReceiver(networkBroadcastReciver, intentFilter);
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        unregisterReceiver(networkBroadcastReciver);
     }
 
     @Override

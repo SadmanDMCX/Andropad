@@ -9,6 +9,10 @@ public class Vars {
     public static final String Id = "ID";
     public static final String Position = "POSITION";
 
+    public static final String CurrencyConverterUrl = "https://free.currencyconverterapi.com/api/v5/";
+
+    public static boolean IsOnline = false;
+
     public static class ProcessType {
 
         public static final String NoteCreate = "NOTE CREATE";

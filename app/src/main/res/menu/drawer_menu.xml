@@ -17,6 +17,12 @@
             android:title="Todos"
             />
 
+        <item
+            android:id="@+id/converterNavItem"
+            android:icon="@drawable/currency"
+            android:title="Converter"
+            />
+
     </group>
 
     <item

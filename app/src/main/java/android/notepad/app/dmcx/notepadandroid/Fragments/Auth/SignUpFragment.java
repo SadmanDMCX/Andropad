@@ -113,7 +113,7 @@ public class SignUpFragment extends Fragment {
                                 }
                             });
                 } else {
-                    Toast.makeText(MainActivity.instance, "Please connect to internet.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AuthActivity.instance, "Please connect to internet.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
